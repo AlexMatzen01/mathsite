@@ -152,6 +152,24 @@
             <div class="two-col"><label>a<input id="expA" type="number" value="2" step="any"></label><label>b<input id="expB" type="number" value="3" step="any"></label><label>y<input id="expY" type="number" value="54" step="any"></label></div>
             <button class="primary full" id="solveExponential">Solve x</button>
           </div>
+
+          <div class="solver-form" id="variableSolver">
+            <p class="formula">Solve any equation for any variable</p>
+            <label>Equation
+              <input id="generalEquation" value="2x + 3y = 12" autocomplete="off" spellcheck="false">
+            </label>
+            <div class="two-col variable-solver-row">
+              <label>Solve for
+                <select id="targetVariable"></select>
+              </label>
+              <label>Initial guess
+                <input id="targetGuess" type="number" value="1" step="any">
+              </label>
+            </div>
+            <div id="knownVariables" class="known-variables"></div>
+            <button class="primary full" id="solveVariable">Solve variable</button>
+            <p class="solver-note">Use variables like x, y, a, b, r, or m. Other variables are given numeric values automatically.</p>
+          </div>
         </div>
         <div class="panel result-panel" id="algebraResult">
           <div class="empty-state"><span>x²</span><h3>Choose a solver</h3><p>MathSite will show the answer and the main steps.</p></div>

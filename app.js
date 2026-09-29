@@ -125,6 +125,134 @@
   $('#solveQuadratic')?.addEventListener('click',()=>{const a=+$('#quadA').value,b=+$('#quadB').value,c=+$('#quadC').value;if(a===0){answer('#algebraResult','Linear result',fmt(-c/b));return;}const d=b*b-4*a*c;if(d>0){const x1=(-b+Math.sqrt(d))/(2*a),x2=(-b-Math.sqrt(d))/(2*a);answer('#algebraResult','Roots',`${fmt(x1)} and ${fmt(x2)}`,[`Discriminant = ${fmt(d)}.`,'Use the quadratic formula.']);}else if(d===0)answer('#algebraResult','Double root',fmt(-b/(2*a)),['The discriminant is 0.']);else answer('#algebraResult','Complex roots',`${fmt(-b/(2*a))} ± ${fmt(Math.sqrt(-d)/(2*a))}i`,['The discriminant is negative.']);});
   $('#solveExponential')?.addEventListener('click',()=>{const a=+$('#expA').value,b=+$('#expB').value,y=+$('#expY').value;if(a===0||b<=0||b===1||y/a<=0){answer('#algebraResult','Result','Undefined for these inputs');return;}const x=Math.log(y/a)/Math.log(b);answer('#algebraResult','x =',fmt(x),[`Divide by a: b^x = ${fmt(y/a)}.`,'Take logs and divide by log(b).']);});
 
+  function detectVariables(equation) {
+    const names = String(equation).match(/[A-Za-z](?![A-Za-z])/g) || [];
+    return [...new Set(names.map(v => v.toLowerCase()).filter(v => v !== 'e'))];
+  }
+
+  function cleanExpression(expr, vars) {
+    let s = String(expr).trim().replaceAll('π','Math.PI');
+    s = s.replace(/\bpi\b/gi,'Math.PI').replace(/\bsqrt\s*\(/gi,'Math.sqrt(')
+      .replace(/\bsin\s*\(/gi,'Math.sin(').replace(/\bcos\s*\(/gi,'Math.cos(')
+      .replace(/\btan\s*\(/gi,'Math.tan(').replace(/\blog\s*\(/gi,'Math.log10(')
+      .replace(/\bln\s*\(/gi,'Math.log(').replace(/\babs\s*\(/gi,'Math.abs(')
+      .replace(/\bexp\s*\(/gi,'Math.exp(').replace(/\^/g,'**');
+    for (const v of vars) s = s.replace(new RegExp('\\b' + v + '\\b','gi'), '__V_' + v.toUpperCase());
+    s = s.replace(/(\d|\)|__V_[A-Z])(?=__V_[A-Z]|\()/g,'$1*');
+    return s;
+  }
+
+  function evaluateEquation(equation, target, targetValue, known) {
+    const sides = String(equation).split('=');
+    if (sides.length !== 2) throw new Error('Use one = sign.');
+    const vars = detectVariables(equation);
+    const left = cleanExpression(sides[0], vars);
+    const right = cleanExpression(sides[1], vars);
+    const scope = {};
+    vars.forEach(v => { scope['__V_' + v.toUpperCase()] = v === target ? targetValue : known[v]; });
+    const keys = Object.keys(scope);
+    const values = Object.values(scope);
+    const make = expr => Function(...keys, '"use strict"; return (' + expr + ')');
+    const lv = make(left)(...values);
+    const rv = make(right)(...values);
+    const result = lv - rv;
+    if (!Number.isFinite(result)) throw new Error('This value makes the equation undefined.');
+    return result;
+  }
+
+  function renderKnownVariables() {
+    const equation = $('#generalEquation')?.value || '';
+    const vars = detectVariables(equation);
+    const select = $('#targetVariable');
+    if (!select) return;
+    const previous = select.value;
+    select.innerHTML = vars.map(v => '<option value="' + v + '">' + v + '</option>').join('');
+    if (vars.includes(previous)) select.value = previous;
+    const target = select.value;
+    const host = $('#knownVariables');
+    host.innerHTML = vars.filter(v => v !== target).map(v =>
+      '<label>' + v + '<input class="known-variable-input" data-var="' + v + '" type="number" step="any" value="1"></label>'
+    ).join('');
+  }
+
+  function solveAnyVariable() {
+    const equation = $('#generalEquation').value.trim();
+    const target = $('#targetVariable').value;
+    const vars = detectVariables(equation);
+    if (!target || !vars.includes(target)) {
+      answer('#algebraResult','Variable solver','Add at least one variable to the equation.');
+      return;
+    }
+    const known = {};
+    $('.known-variable-input').forEach(input => known[input.dataset.var] = Number(input.value));
+    const other = vars.filter(v => v !== target);
+    if (other.some(v => !Number.isFinite(known[v]))) {
+      answer('#algebraResult','Variable solver','Enter values for the other variables.');
+      return;
+    }
+
+    const f = x => evaluateEquation(equation, target, x, known);
+    let root = null;
+    const guess = Number($('#targetGuess').value);
+
+    if (Number.isFinite(guess)) {
+      let x = guess;
+      for (let i=0; i<40; i++) {
+        const y = f(x);
+        if (Math.abs(y) < 1e-9) { root = x; break; }
+        const h = Math.max(1e-6, Math.abs(x)*1e-5);
+        const slope = (f(x+h)-f(x-h))/(2*h);
+        if (!Number.isFinite(slope) || Math.abs(slope) < 1e-12) break;
+        const next = x - y/slope;
+        if (!Number.isFinite(next) || Math.abs(next) > 1e12) break;
+        x = next;
+      }
+    }
+
+    if (root === null) {
+      let prevX = -1000;
+      let prevY;
+      try { prevY = f(prevX); } catch { prevY = NaN; }
+      for (let i=1; i<=4000 && root===null; i++) {
+        const x = -1000 + i * 0.5;
+        let y;
+        try { y = f(x); } catch { prevX=x; prevY=NaN; continue; }
+        if (Number.isFinite(prevY) && Math.abs(y) < 1e-9) root = x;
+        else if (Number.isFinite(prevY) && Number.isFinite(y) && prevY*y < 0) {
+          let lo=prevX, hi=x, flo=prevY;
+          for (let k=0;k<70;k++) {
+            const mid=(lo+hi)/2;
+            const fm=f(mid);
+            if (Math.abs(fm)<1e-10) { root=mid; break; }
+            if (flo*fm<=0) hi=mid; else { lo=mid; flo=fm; }
+          }
+          if (root===null) root=(lo+hi)/2;
+        }
+        prevX=x; prevY=y;
+      }
+    }
+
+    if (root === null || !Number.isFinite(root)) {
+      answer('#algebraResult','No numeric solution found','Try a different initial guess or check the equation.',[
+        'Detected variables: ' + vars.join(', ') + '.',
+        'The solver searches numerically for a value of ' + target + ' that makes both sides equal.'
+      ]);
+      return;
+    }
+
+    answer('#algebraResult','Solved for ' + target,target + ' = ' + fmt(root),[
+      'Equation: ' + equation,
+      'Target variable: ' + target,
+      other.length ? 'Known values: ' + other.map(v => v + ' = ' + fmt(known[v])).join(', ') : 'No other variables were needed.',
+      'Check: left side − right side = ' + fmt(f(root)) + '.'
+    ]);
+  }
+
+  $('#generalEquation')?.addEventListener('input', renderKnownVariables);
+  $('#targetVariable')?.addEventListener('change', renderKnownVariables);
+  $('#solveVariable')?.addEventListener('click', solveAnyVariable);
+  renderKnownVariables();
+
   const toRad=x=>state.angle==='deg'?x*Math.PI/180:x, fromRad=x=>state.angle==='deg'?x*180/Math.PI:x;
   $('#calculateTrig')?.addEventListener('click',()=>{const x=+$('#theta').value;answer('#trigResult','Trig values',`sin ${fmt(Math.sin(toRad(x)))} • cos ${fmt(Math.cos(toRad(x)))} • tan ${fmt(Math.tan(toRad(x)))}`,[`Mode: ${state.angle==='deg'?'degrees':'radians'}.`]);});
   $$('[data-trig]').forEach(btn=>btn.addEventListener('click',()=>{const x=+$('#theta').value,fn=btn.dataset.trig;answer('#trigResult',fn+'(θ)',fmt(Math[fn](toRad(x))));}));

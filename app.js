@@ -430,7 +430,7 @@ $("#calculateTrig").addEventListener("click",()=>{
     "tan(θ) = "+fmt(trigValue("tan",x))+"."
   ]);
 });
-$$("[data-trig]").forEach(btn=>btn.addEventListener("click",()=>{$("#theta").value=30; $("#calculateTrig").click();}));
+$("[data-trig]").forEach(btn=>btn.addEventListener("click",()=>{\n  const x=Number($("#theta").value), fn=btn.dataset.trig;\n  renderAnswer("#trigResult",fn+"(θ)",fmt(trigValue(fn,x)),["Angle mode: "+(state.angleMode==="deg"?"degrees":"radians")+"." ]);\n}));
 $$("#angleMode button").forEach(btn=>btn.addEventListener("click",()=>{
   state.angleMode=btn.dataset.angleMode;
   $$("#angleMode button").forEach(b=>b.classList.toggle("selected",b===btn));

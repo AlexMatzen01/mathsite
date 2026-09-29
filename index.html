@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="description" content="MathSite — graphing, algebra, systems, trigonometry, geometry, and more.">
+  <title>MathSite</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="MathSite home">
+      <span class="brand-mark">∑</span>
+      <span>
+        <strong>MathSite</strong>
+        <small>learn • calculate • visualize</small>
+      </span>
+    </a>
+    <button class="menu-button" id="menuButton" aria-label="Open navigation">☰</button>
+    <nav id="nav">
+      <button class="nav-link active" data-page="home">Home</button>
+      <button class="nav-link" data-page="graph">Graphing</button>
+      <button class="nav-link" data-page="systems">Systems</button>
+      <button class="nav-link" data-page="algebra">Algebra</button>
+      <button class="nav-link" data-page="trig">Trigonometry</button>
+      <button class="nav-link" data-page="geometry">Geometry</button>
+      <button class="nav-link" data-page="arithmetic">Arithmetic</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page active" id="home">
+      <div class="hero">
+        <div>
+          <span class="eyebrow">MATH TOOLS FOR CLASS</span>
+          <h1>See the math.<br><span>Understand the math.</span></h1>
+          <p class="hero-copy">A fast, clean math workspace for Algebra 1 & 2, graphing, systems, trig, geometry, and everyday calculations.</p>
+          <div class="hero-actions">
+            <button class="primary" data-go="graph">Open Graphing</button>
+            <button class="secondary" data-go="systems">Solve a System</button>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="mini-grid">
+            <span>y = x²</span>
+            <span>f(x)</span>
+            <span>sin θ</span>
+            <span>πr²</span>
+            <span>Δx / Δy</span>
+            <span>ax² + bx + c</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">TOOLBOX</span>
+          <h2>Everything in one place</h2>
+        </div>
+        <p>Pick a topic and start calculating.</p>
+      </div>
+      <div class="tool-grid">
+        <button class="tool-card" data-go="graph"><span class="icon">⌁</span><strong>Graphing</strong><small>Functions, zoom, axes, roots</small></button>
+        <button class="tool-card" data-go="systems"><span class="icon">≡</span><strong>Systems</strong><small>2×2 systems with steps</small></button>
+        <button class="tool-card" data-go="algebra"><span class="icon">x²</span><strong>Algebra</strong><small>Linear, quadratic, exponentials</small></button>
+        <button class="tool-card" data-go="trig"><span class="icon">θ</span><strong>Trigonometry</strong><small>sin, cos, tan and inverse trig</small></button>
+        <button class="tool-card" data-go="geometry"><span class="icon">△</span><strong>Geometry</strong><small>Areas, circles, solids</small></button>
+        <button class="tool-card" data-go="arithmetic"><span class="icon">÷</span><strong>Arithmetic</strong><small>Expressions, fractions, powers</small></button>
+      </div>
+    </section>
+
+    <section class="page" id="graph">
+      <div class="page-head">
+        <div><span class="eyebrow">GRAPHING</span><h2>Function Grapher</h2><p>Enter functions using x. Examples: <code>x^2</code>, <code>sin(x)</code>, <code>2x+1</code>, <code>sqrt(x)</code>.</p></div>
+        <button class="ghost" id="resetGraph">Reset view</button>
+      </div>
+      <div class="workspace graph-layout">
+        <div class="panel controls-panel">
+          <div class="panel-title"><span>Functions</span><span class="hint">Up to 4</span></div>
+          <div id="functionList"></div>
+          <button class="add-btn" id="addFunction">＋ Add function</button>
+          <div class="divider"></div>
+          <div class="two-col">
+            <label>Min X<input id="minX" type="number" value="-10" step="1"></label>
+            <label>Max X<input id="maxX" type="number" value="10" step="1"></label>
+            <label>Min Y<input id="minY" type="number" value="-10" step="1"></label>
+            <label>Max Y<input id="maxY" type="number" value="10" step="1"></label>
+          </div>
+          <button class="primary full" id="plotButton">Plot graph</button>
+          <div id="graphStatus" class="status"></div>
+        </div>
+        <div class="panel graph-panel">
+          <canvas id="graphCanvas" width="900" height="600"></canvas>
+          <div class="graph-footer">
+            <span>Scroll to zoom • drag to pan</span>
+            <span id="coords">x: 0, y: 0</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="systems">
+      <div class="page-head">
+        <div><span class="eyebrow">ALGEBRA 1 / 2</span><h2>Systems of Equations</h2><p>Solve a 2×2 system and see how the equations intersect.</p></div>
+      </div>
+      <div class="workspace two-panel">
+        <div class="panel">
+          <div class="panel-title">Enter your equations</div>
+          <div class="equation-row"><span>Equation 1</span><input id="s1a" type="number" value="2" step="any"><span>x +</span><input id="s1b" type="number" value="1" step="any"><span>y =</span><input id="s1c" type="number" value="7" step="any"></div>
+          <div class="equation-row"><span>Equation 2</span><input id="s2a" type="number" value="1" step="any"><span>x +</span><input id="s2b" type="number" value="-1" step="any"><span>y =</span><input id="s2c" type="number" value="1" step="any"></div>
+          <button class="primary" id="solveSystem">Solve system</button>
+          <div class="example-row">
+            <button class="chip" data-system="2,1,7,1,-1,1">Example</button>
+            <button class="chip" data-system="1,1,4,2,2,8">Infinite</button>
+            <button class="chip" data-system="1,1,4,1,1,6">No solution</button>
+          </div>
+        </div>
+        <div class="panel result-panel" id="systemResult">
+          <div class="empty-state"><span>∑</span><h3>Your solution will appear here</h3><p>Use elimination or substitution on paper while MathSite checks your work.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="algebra">
+      <div class="page-head">
+        <div><span class="eyebrow">ALGEBRA 1 / 2</span><h2>Algebra Solver</h2><p>Quick tools for linear equations, quadratics, exponentials, and factoring.</p></div>
+      </div>
+      <div class="workspace two-panel">
+        <div class="panel">
+          <div class="panel-title">Choose a solver</div>
+          <div class="segmented" id="algebraMode">
+            <button class="selected" data-mode="linear">Linear</button>
+            <button data-mode="quadratic">Quadratic</button>
+            <button data-mode="exponential">Exponential</button>
+          </div>
+
+          <div class="solver-form" id="linearForm">
+            <p class="formula">ax + b = c</p>
+            <div class="two-col"><label>a<input id="linA" type="number" value="3" step="any"></label><label>b<input id="linB" type="number" value="5" step="any"></label><label>c<input id="linC" type="number" value="20" step="any"></label></div>
+            <button class="primary full" id="solveLinear">Solve x</button>
+          </div>
+
+          <div class="solver-form hidden" id="quadraticForm">
+            <p class="formula">ax² + bx + c = 0</p>
+            <div class="two-col"><label>a<input id="quadA" type="number" value="1" step="any"></label><label>b<input id="quadB" type="number" value="-5" step="any"></label><label>c<input id="quadC" type="number" value="6" step="any"></label></div>
+            <button class="primary full" id="solveQuadratic">Solve roots</button>
+          </div>
+
+          <div class="solver-form hidden" id="exponentialForm">
+            <p class="formula">a · bˣ = y</p>
+            <div class="two-col"><label>a<input id="expA" type="number" value="2" step="any"></label><label>b<input id="expB" type="number" value="3" step="any"></label><label>y<input id="expY" type="number" value="54" step="any"></label></div>
+            <button class="primary full" id="solveExponential">Solve x</button>
+          </div>
+        </div>
+        <div class="panel result-panel" id="algebraResult">
+          <div class="empty-state"><span>x²</span><h3>Choose a solver</h3><p>MathSite will show the answer and the main steps.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="trig">
+      <div class="page-head">
+        <div><span class="eyebrow">TRIGONOMETRY</span><h2>Trig Calculator</h2><p>Evaluate trig functions, inverse trig, and convert between degrees and radians.</p></div>
+      </div>
+      <div class="workspace two-panel">
+        <div class="panel">
+          <div class="panel-title">Angle</div>
+          <div class="angle-toggle segmented" id="angleMode">
+            <button class="selected" data-angle-mode="deg">Degrees</button>
+            <button data-angle-mode="rad">Radians</button>
+          </div>
+          <label class="big-input">θ<input id="theta" type="number" value="45" step="any"></label>
+          <button class="primary full" id="calculateTrig">Calculate</button>
+          <div class="trig-grid">
+            <button data-trig="sin">sin</button>
+            <button data-trig="cos">cos</button>
+            <button data-trig="tan">tan</button>
+          </div>
+          <div class="divider"></div>
+          <div class="panel-title">Inverse trig</div>
+          <div class="two-col">
+            <label>Value<input id="invValue" type="number" value="0.70710678" step="any"></label>
+            <label>Function<select id="invFunc"><option value="asin">sin⁻¹</option><option value="acos">cos⁻¹</option><option value="atan">tan⁻¹</option></select></label>
+          </div>
+          <button class="secondary full" id="calculateInverse">Calculate inverse</button>
+        </div>
+        <div class="panel result-panel" id="trigResult">
+          <div class="empty-state"><span>θ</span><h3>Trig values appear here</h3><p>Try 30°, 45°, or 60° to see common special-angle values.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="geometry">
+      <div class="page-head">
+        <div><span class="eyebrow">GEOMETRY</span><h2>Geometry Calculator</h2><p>Area, perimeter, circumference, surface area, and volume.</p></div>
+      </div>
+      <div class="workspace two-panel">
+        <div class="panel">
+          <div class="segmented" id="shapeMode">
+            <button class="selected" data-shape="circle">Circle</button>
+            <button data-shape="triangle">Triangle</button>
+            <button data-shape="rectangle">Rectangle</button>
+            <button data-shape="sphere">Sphere</button>
+            <button data-shape="cylinder">Cylinder</button>
+          </div>
+          <div id="shapeFields" class="shape-fields"></div>
+          <button class="primary full" id="calculateGeometry">Calculate</button>
+        </div>
+        <div class="panel result-panel" id="geometryResult">
+          <div class="empty-state"><span>△</span><h3>Pick a shape</h3><p>Enter the dimensions to get exact formulas and numeric results.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="arithmetic">
+      <div class="page-head">
+        <div><span class="eyebrow">FOUNDATIONS</span><h2>Arithmetic Calculator</h2><p>Evaluate expressions with parentheses, powers, roots, trig functions, and constants.</p></div>
+      </div>
+      <div class="workspace calc-workspace">
+        <div class="panel calculator">
+          <input id="calcInput" class="calc-display" value="(12 + 8) / 4 + 3^2" aria-label="Expression">
+          <div class="keypad">
+            <button data-key="7">7</button><button data-key="8">8</button><button data-key="9">9</button><button data-key="/">÷</button><button data-key="(">(</button>
+            <button data-key="4">4</button><button data-key="5">5</button><button data-key="6">6</button><button data-key="*">×</button><button data-key=")">)</button>
+            <button data-key="1">1</button><button data-key="2">2</button><button data-key="3">3</button><button data-key="-">−</button><button data-key="^">xʸ</button>
+            <button data-key="0">0</button><button data-key=".">.</button><button data-key="pi">π</button><button data-key="+">+</button><button data-key="sqrt(">√</button>
+            <button class="wide" data-key="sin(">sin</button><button data-key="cos(">cos</button><button class="wide" data-key="tan(">tan</button><button class="clear" id="clearCalc">AC</button><button class="equals" id="evaluateCalc">=</button>
+          </div>
+        </div>
+        <div class="panel result-panel" id="calcResult">
+          <div class="empty-state"><span>=</span><h3>Enter an expression</h3><p>Use ^ for powers and π for pi.</p></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer><span>MathSite</span><span>Built for Algebra 1 & 2 • Trig • Geometry • Graphing</span></footer>
+  <script src="app.js"></script>
+</body>
+</html>

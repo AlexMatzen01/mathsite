@@ -437,7 +437,7 @@ $$("#angleMode button").forEach(btn=>btn.addEventListener("click",()=>{
 }));
 $("#calculateInverse").addEventListener("click",()=>{
   const value=Number($("#invValue").value), fn=$("#invFunc").value;
-  if (value < -1 || value > 1) {
+  if ((fn === "asin" || fn === "acos") && (value < -1 || value > 1)) {
     renderAnswer("#trigResult","Inverse trig","Undefined in the real numbers",["sin⁻¹ and cos⁻¹ require inputs from −1 to 1."]);
     return;
   }
